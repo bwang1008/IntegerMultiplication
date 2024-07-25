@@ -1,0 +1,51 @@
+[project]
+name = "IntegerMultiplication"
+version = "0.0.0"
+description = "Implementation of integer multiplication algorithms on a Multi-Tape Turing Machine."
+authors = [ {name = "Brian Wang", email = "bwang1008@gmail.com"} ]
+requires-python = ">= 3.8"
+dependencies = [
+	"loguru",
+	"mypy",
+	"pre-commit",
+	"ruff",
+	"typing-extensions",
+	"typer",
+	"uv",
+]
+
+[tool.ruff]
+# See https://docs.astral.sh/ruff/configuration/
+exclude = [
+	".git",
+	".mypy_cache",
+	".pytest_cache",
+	".ruff_cache",
+	".venv",
+]
+
+line-length = 88
+indent-width = 4
+
+target-version = "py38"
+
+[tool.ruff.lint]
+# See https://docs.astral.sh/ruff/rules/
+# and "ruff linter -v"
+select = ["ALL"]
+ignore = [
+	"D203", # one-blank-line-before-class incompatible with D211
+	"D213", # multi-line-summary-second-line incompatible with D212
+	"COM812",  # missing-trailing-comma incompatible with formatter
+	"ISC001",  # single-line-implicit-string-concatenation incompatible with formatter
+]
+
+fixable = ["ALL"]
+unfixable = []
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+docstring-code-format = true

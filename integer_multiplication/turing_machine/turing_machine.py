@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from integer_multiplication.turing_machine.shift import Shift
 from integer_multiplication.turing_machine.tape import Tape
 
 if TYPE_CHECKING:
@@ -31,7 +32,8 @@ class TuringMachine:
     ) -> None:
         """Initialize beginning state of Turing machine with empty tapes.
 
-        :param num_states: Number of states Turing machine has
+        :param num_states: Number of states Turing machine has, including any
+            halting states.
         :param num_tapes: Number of tapes
         :param starting_state: Number at least 0 and less than num_states that
             describes which state to start running from
@@ -79,6 +81,7 @@ class TuringMachine:
 
         for symbol in symbols:
             self.tapes[0].write(symbol)
+            self.tapes[0].shift(Shift.RIGHT)
 
     def step(self) -> None:
         """Perform a single step of the Turing Machine.

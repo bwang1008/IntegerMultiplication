@@ -12,7 +12,12 @@ ACCEPT_ANY_CHAR: str = "."
 
 
 class Transition:
-    """Transition describes how to match inputs and write output Symbols and shifts."""
+    """Transition describes how to match inputs and write output Symbols and shifts.
+
+    This format is used to store only what is used. The format of specifying
+    every direct transition possible is avoided, because otherwise a T-tape
+    Turing machine would need 3^T transitions between every pair of states.
+    """
 
     def __init__(
         self,
@@ -50,7 +55,7 @@ class Transition:
 
     def matches(self, tape_input: str) -> bool:
         """Determine if tape_input matches accept_condition."""
-        for index, desired_character in self.accept_condition:
+        for index, desired_character in self.accept_condition.items():
             if (
                 desired_character != ACCEPT_ANY_CHAR
                 and tape_input[index] != desired_character

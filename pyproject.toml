@@ -10,8 +10,8 @@ dependencies = [
 	"mypy",
 	"pre-commit",
 	"ruff",
-	"typing-extensions",
 	"typer",
+	"typing-extensions",
 	"uv",
 ]
 

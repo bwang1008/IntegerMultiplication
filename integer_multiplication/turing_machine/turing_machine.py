@@ -114,9 +114,15 @@ class TuringMachine:
             self.current_state = self.one_halting_state
             self.num_steps += 1
 
-    def run(self) -> int:
-        """Run the Turing machine until it halts."""
-        while not self.is_halted():
+    def run(self, *, max_steps: int | None = None) -> int:
+        """Run the Turing machine until it halts.
+
+        :param max_steps: the maximum number of steps the Turing
+            machine should run for before returning.
+        """
+        while not self.is_halted() and (
+            max_steps is None or self.num_steps < max_steps
+        ):
             self.step()
 
         return self.num_steps

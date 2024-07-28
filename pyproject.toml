@@ -5,6 +5,7 @@ description = "Implementation of integer multiplication algorithms on a Multi-Ta
 authors = [ {name = "Brian Wang", email = "bwang1008@gmail.com"} ]
 requires-python = ">= 3.8"
 dependencies = [
+	"ipython",
 	"loguru",
 	"mypy",
 	"pre-commit",

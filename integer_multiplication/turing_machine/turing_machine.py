@@ -120,3 +120,13 @@ class TuringMachine:
             self.step()
 
         return self.num_steps
+
+    def reset(self) -> None:
+        """Set all blank tapes, current_state to initial state, reset steps counter.
+
+        Note that this erases any existing input tape cells.
+        """
+        num_tapes: int = len(self.tapes)
+        self.tapes = [Tape() for i in range(num_tapes)]
+        self.current_state = self.starting_state
+        self.num_steps = 0

@@ -54,7 +54,13 @@ class Transition:
         self.tape_shifts: dict[int, Shift] = tape_shifts
 
     def matches(self, tape_input: str) -> bool:
-        """Determine if tape_input matches accept_condition."""
+        """Determine if tape_input matches accept_condition.
+
+        :param tape_input: the contents of the tapes of the Turing machine,
+            concatenated together in order as a string
+        :return: True when the tape_input matches the accept_condition
+            on the accept_condition's specified tape indices
+        """
         for index, desired_character in self.accept_condition.items():
             if (
                 desired_character != ACCEPT_ANY_CHAR

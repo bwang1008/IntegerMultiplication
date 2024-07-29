@@ -56,11 +56,17 @@ class TuringMachine:
         self.one_halting_state: int = next(iter(halting_states))
 
     def is_halted(self) -> bool:
-        """Return true if current state is a halting state."""
+        """Return true if current state is a halting state.
+
+        :return: True if current state of Turing machine is a halting state
+        """
         return self.current_state in self.halting_states
 
     def read_tape_contents(self) -> str:
-        """Return each tape head contents, concatenated together as a string."""
+        """Return each tape head contents, concatenated together as a string.
+
+        :return: the tape head symbols concatenated in order as a string
+        """
         return "".join(tape.read().value for tape in self.tapes)
 
     def set_input_tape_values(self, symbols: list[Symbol]) -> None:
@@ -72,6 +78,8 @@ class TuringMachine:
         by a single blank between inputs.
 
         This should not be called after the machine has started running.
+
+        :param symbols: list of Symbols to be written on the first tape
         """
         if self.num_steps > 0:
             error_msg: str = (
@@ -118,7 +126,9 @@ class TuringMachine:
         """Run the Turing machine until it halts.
 
         :param max_steps: the maximum number of steps the Turing
-            machine should run for before returning.
+            machine should run for before returning. If None, the machine
+            will run until it halts. Default None.
+        :return: number of steps the Turing machine took
         """
         while not self.is_halted() and (
             max_steps is None or self.num_steps < max_steps

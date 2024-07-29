@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import TYPE_CHECKING
 
+from integer_multiplication.turing_machine.transition import (
+    SingleTapeTransition,
+    Transition,
+)
 from integer_multiplication.turing_machine.turing_machine import TuringMachine
-
-if TYPE_CHECKING:
-    from integer_multiplication.turing_machine.transition import Transition
 
 
 class TuringMachineBuilder:
@@ -39,7 +39,7 @@ class TuringMachineBuilder:
     def get_or_create_state(
         self, *, name: str | None = None, halting: bool = False
     ) -> int:
-        """Fetch an existing state of create a new state.
+        """Fetch an existing state or create a new state.
 
         If a name is provided and was used before, that node is returned.
         Otherwise, a new state is created with that name.
@@ -59,6 +59,16 @@ class TuringMachineBuilder:
 
         return self.create_state(halting=halting)
 
+    def get_or_create_tape_index(self, *, name: str) -> int:
+        """Fetch an existing tape index or create a new tape."""
+        if name in self.named_tapes:
+            return self.named_tapes[name]
+
+        new_tape_index: int = self.num_tapes
+        self.named_tapes[name] = new_tape_index
+        self.num_tapes += 1
+        return new_tape_index
+
     def set_starting_state(self, starting_state: int) -> None:
         """Designate a particular state as the starting state of the machine.
 
@@ -67,6 +77,28 @@ class TuringMachineBuilder:
         :param starting_state: which state to be used as the starting state.
         """
         self.starting_state = starting_state
+
+    def add_transition_general(self, old_state: int, transition: Transition) -> None:
+        """Add a Transition instance associated with old_state."""
+        self.transitions[old_state].append(transition)
+
+    def add_single_tape_transition(
+        self,
+        old_state: int,
+        new_state: int,
+        tape_index: int,
+        single_transition: SingleTapeTransition,
+    ) -> None:
+        """Create a transition between old state to new state based on one tape."""
+        self.add_transition_general(
+            old_state,
+            Transition(
+                new_state=new_state,
+                accept_condition={tape_index: single_transition.accept_condition},
+                symbols_to_write={tape_index: single_transition.symbol_to_write},
+                tape_shifts={tape_index: single_transition.shift},
+            ),
+        )
 
     def create(self) -> TuringMachine:
         """Create an instance of TuringMachine.

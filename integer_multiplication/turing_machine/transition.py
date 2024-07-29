@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NamedTuple
 
 if TYPE_CHECKING:
     from integer_multiplication.turing_machine.shift import Shift
@@ -63,3 +63,11 @@ class Transition:
                 return False
 
         return True
+
+
+class SingleTapeTransition(NamedTuple):
+    """Simplified transition that only reads and writes from one tape."""
+
+    accept_condition: str
+    symbol_to_write: Symbol
+    shift: Shift

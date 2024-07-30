@@ -2,13 +2,19 @@
 
 from __future__ import annotations
 
+import itertools
 from collections import defaultdict
+from typing import TYPE_CHECKING
 
 from integer_multiplication.turing_machine.transition import (
     SingleTapeTransition,
     Transition,
 )
 from integer_multiplication.turing_machine.turing_machine import TuringMachine
+
+if TYPE_CHECKING:
+    from integer_multiplication.turing_machine.shift import Shift
+    from integer_multiplication.turing_machine.symbol import Symbol
 
 
 class TuringMachineBuilder:
@@ -84,7 +90,7 @@ class TuringMachineBuilder:
         """
         self.starting_state = starting_state
 
-    def add_transition_general(self, old_state: int, transition: Transition) -> None:
+    def add_transition_direct(self, old_state: int, transition: Transition) -> None:
         """Add a Transition instance associated with old_state.
 
         :param old_state: which state the Turing machine is in to consider
@@ -95,6 +101,58 @@ class TuringMachineBuilder:
             the tape heads
         """
         self.transitions[old_state].append(transition)
+
+    def add_transition_general(
+        self,
+        old_state: int,
+        new_state: int,
+        accept_condition: dict[int, str | list[str]],
+        symbols_to_write: dict[int, Symbol],
+        tape_shifts: dict[int, Shift],
+    ) -> None:
+        """Add transition from old to new state, using simpler syntax.
+
+        :param old_state: which state the Turing machine is in to consider
+            this transition
+        :param new_state: which state to move to if accept_condition matches
+            the tape input
+        :param accept_condition: mapping from tape index to expected symbol
+            if a string was provided, or to a list of symbols. If a list of
+            symbols is provided, then a transition is added for every possible
+            value. Note that this means a Cartesian product of every list in
+            accept_condition is used to create all transitions. For example,
+            accept_condition := {0: "1", 3: "0"} means to take this transition
+            if tape 0 has a "1" and tape 3 has a "0", while
+            accept_condition := {0: ["1", "0"], 3: ["0"]} means create one
+            transition for when tape 0 has a "1" and tape 3 has a "0", and
+            create another transition for when tape 0 has a "0" and tape 3 has
+            a "0". This is useful for a situation like detecting if tape 0 is
+            current not a blank: set accept_condition := {0: ["0", "1"]} to mean
+            "whenever tape 0 is a 0 or a 1".
+        :param symbols_to_write: mapping from tape index to symbol to write.
+        :param tape_shifts: mapping from tape index to which way the heads of the
+            tapes should move.
+        """
+        accept_condition_lists: list[list[str]] = []
+        for val in accept_condition.values():
+            if isinstance(val, str):
+                accept_condition_lists.append([val])
+            elif isinstance(val, list):
+                accept_condition_lists.append(val)
+
+        tape_indices: list[int] = list(accept_condition)
+        for cartesian_product in itertools.product(*accept_condition_lists):
+            accept_condition_instance: dict[int, str] = dict(
+                zip(tape_indices, cartesian_product)
+            )
+            self.transitions[old_state].append(
+                Transition(
+                    new_state=new_state,
+                    accept_condition=accept_condition_instance,
+                    symbols_to_write=symbols_to_write,
+                    tape_shifts=tape_shifts,
+                )
+            )
 
     def add_single_tape_transition(
         self,
@@ -122,12 +180,10 @@ class TuringMachineBuilder:
         """
         self.add_transition_general(
             old_state,
-            Transition(
-                new_state=new_state,
-                accept_condition={tape_index: single_transition.accept_condition},
-                symbols_to_write={tape_index: single_transition.symbol_to_write},
-                tape_shifts={tape_index: single_transition.shift},
-            ),
+            new_state=new_state,
+            accept_condition={tape_index: single_transition.accept_condition},
+            symbols_to_write={tape_index: single_transition.symbol_to_write},
+            tape_shifts={tape_index: single_transition.shift},
         )
 
     def create(self) -> TuringMachine:

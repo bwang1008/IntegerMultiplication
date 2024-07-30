@@ -8,8 +8,6 @@ if TYPE_CHECKING:
     from integer_multiplication.turing_machine.shift import Shift
     from integer_multiplication.turing_machine.symbol import Symbol
 
-ACCEPT_ANY_CHAR: str = "."
-
 
 class Transition:
     """Transition describes how to match inputs and write output Symbols and shifts.
@@ -32,11 +30,10 @@ class Transition:
         :param new_state: what state the Turing machine should move to
         :param accept_condition: dictionary of tape indices to characters.
             If all characters of a given tape input at these specified indices
-            match the mapped characters, then this transition is taken. There
-            is a special character "." that matches any input.  For example,
-            if accept_condition := {0: "1", 2: "."}, then tape_input "10_" on
-            a 3-tape Turing machine would match, since the 0th char is "1"
-            and the 2nd char "_" matches ".".
+            match the mapped characters, then this transition is taken. For
+            example, if accept_condition := {0: "1", 2: "0"}, then tape_input
+            "100" on a 3-tape Turing machine would match, since the 0th char is
+            "1" and the 2nd char is "0".
         :param symbols_to_write: dictionary of tape indices to symbols.
             When a given tape input matches accept_condition, the tapes at
             these indices should write their corresponding character symbols.
@@ -62,10 +59,7 @@ class Transition:
             on the accept_condition's specified tape indices
         """
         for index, desired_character in self.accept_condition.items():
-            if (
-                desired_character != ACCEPT_ANY_CHAR
-                and tape_input[index] != desired_character
-            ):
+            if tape_input[index] != desired_character:
                 return False
 
         return True

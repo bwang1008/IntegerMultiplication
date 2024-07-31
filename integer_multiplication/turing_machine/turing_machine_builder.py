@@ -102,7 +102,7 @@ class TuringMachineBuilder:
         """
         self.transitions[old_state].append(transition)
 
-    def add_transition_general(
+    def add_transition(
         self,
         old_state: int,
         new_state: int,

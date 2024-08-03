@@ -178,7 +178,7 @@ class TuringMachineBuilder:
             expect to accept this transition, what new symbol to write, and
             how to shif tape_index's tape head
         """
-        self.add_transition_general(
+        self.add_transition(
             old_state,
             new_state=new_state,
             accept_condition={tape_index: single_transition.accept_condition},

@@ -27,7 +27,7 @@ def _create_half_adder_transitions(
     output_tape: TapeDirection,
     summand_tape: TapeDirection,
     carry_tape: int,
-) -> list[tuple[dict[int, str], dict[int, Symbol], dict[int, Shift]]]:
+) -> list[tuple[dict[int, str | list[str]], dict[int, Symbol], dict[int, Shift]]]:
     """Create transitions corresponding to half-adder inputs and outputs.
 
     :param output_tape: which tape the output is stored on, as well as which
@@ -36,8 +36,12 @@ def _create_half_adder_transitions(
     :param carry_tape: tape that holds the carry bit, initially assigned to 0
     :return: the state that the transitions end on
     """
-    transitions: list[tuple[dict[int, str], dict[int, Symbol], dict[int, Shift]]] = []
-    for output_value in [[Symbol.BLANK.value, Symbol.ZERO.value], Symbol.ONE.value]:
+    transitions: list[
+        tuple[dict[int, str | list[str]], dict[int, Symbol], dict[int, Shift]]
+    ] = []
+
+    output_value: str | list[str]
+    for output_value in ([Symbol.BLANK.value, Symbol.ZERO.value], Symbol.ONE.value):
         for arg1_value in [Symbol.ZERO.value, Symbol.ONE.value]:
             for carry_value in [Symbol.ZERO.value, Symbol.ONE.value]:
                 # add the 3 bits in the 3 tapes
@@ -56,7 +60,7 @@ def _create_half_adder_transitions(
                 }
                 symbols_to_write = {
                     output_tape.tape_index: Symbol[str(write_bit)],
-                    carry_tape.tape_index: Symbol[str(carry_bit)],
+                    carry_tape: Symbol[str(carry_bit)],
                 }
                 tape_shifts = {
                     output_tape.tape_index: output_tape.shift,
@@ -92,7 +96,7 @@ def create_grade_school_turing_machine() -> TuringMachine:
         start_node,
         new_state=start_node,
         accept_condition={input_tape: Symbol.ZERO.value},
-        symbols_to_write={arg1_tape: Symbol.ZERO.value},
+        symbols_to_write={arg1_tape: Symbol.ZERO},
         tape_shifts={input_tape: Shift.RIGHT, arg1_tape: Shift.RIGHT},
     )
     # copy 1s
@@ -100,7 +104,7 @@ def create_grade_school_turing_machine() -> TuringMachine:
         start_node,
         new_state=start_node,
         accept_condition={input_tape: Symbol.ONE.value},
-        symbols_to_write={arg1_tape: Symbol.ONE.value},
+        symbols_to_write={arg1_tape: Symbol.ONE},
         tape_shifts={input_tape: Shift.RIGHT, arg1_tape: Shift.RIGHT},
     )
     # When encounter a blank, you are in between the two inputs.
@@ -112,7 +116,7 @@ def create_grade_school_turing_machine() -> TuringMachine:
         new_state=process_arg2_node,
         accept_condition={input_tape: Symbol.BLANK.value},
         symbols_to_write={
-            carry_tape: Symbol.ZERO.value,
+            carry_tape: Symbol.ZERO,
         },
         tape_shifts={
             input_tape: Shift.RIGHT,  # head now on most-significant bit of 2nd arg
@@ -146,7 +150,7 @@ def create_grade_school_turing_machine() -> TuringMachine:
     # starting as 1.
 
     half_adder_transitions: list[
-        tuple[dict[int, str], dict[int, Symbol], dict[int, Shift]]
+        tuple[dict[int, str | list[str]], dict[int, Symbol], dict[int, Shift]]
     ] = _create_half_adder_transitions(
         TapeDirection(output_tape, Shift.LEFT),
         TapeDirection(arg1_tape, Shift.LEFT),

@@ -59,28 +59,20 @@ def copy_word(
     :param input_tape: tape where input to copy resides
     :param output_tapes: tapes where input should be copied to
     """
-    tape_shifts: dict[int, Shift] = {
-        input_tape.tape_index: input_tape.shift,
-        **{output_tape.tape_index: output_tape.shift for output_tape in output_tapes},
-    }
-
-    # copy 0s
-    builder.add_transition(
-        start_node,
-        new_state=start_node,
-        accept_condition={input_tape.tape_index: Symbol.ZERO.value},
-        symbols_to_write={
-            output_tape.tape_index: Symbol.ZERO for output_tape in output_tapes
-        },
-        tape_shifts=tape_shifts,
-    )
-    # copy 1s
-    builder.add_transition(
-        start_node,
-        new_state=start_node,
-        accept_condition={input_tape.tape_index: Symbol.ONE.value},
-        symbols_to_write={
-            output_tape.tape_index: Symbol.ONE for output_tape in output_tapes
-        },
-        tape_shifts=tape_shifts,
-    )
+    # copy 0s and 1s
+    for symbol in [Symbol.ZERO, Symbol.ONE]:
+        builder.add_transition(
+            start_node,
+            new_state=start_node,
+            accept_condition={input_tape.tape_index: symbol.value},
+            symbols_to_write={
+                output_tape.tape_index: symbol for output_tape in output_tapes
+            },
+            tape_shifts={
+                input_tape.tape_index: input_tape.shift,
+                **{
+                    output_tape.tape_index: output_tape.shift
+                    for output_tape in output_tapes
+                },
+            },
+        )

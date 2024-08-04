@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+from integer_multiplication.algorithm.utils import TapeDirection
 from integer_multiplication.turing_machine.shift import Shift
 from integer_multiplication.turing_machine.symbol import Symbol
 from integer_multiplication.turing_machine.turing_machine_builder import (
@@ -13,14 +13,6 @@ from integer_multiplication.turing_machine.turing_machine_builder import (
 
 if TYPE_CHECKING:
     from integer_multiplication.turing_machine.turing_machine import TuringMachine
-
-
-@dataclass
-class TapeDirection:
-    """Class for keeping track of a specific tape and a direction/shift."""
-
-    tape_index: int
-    shift: Shift
 
 
 def _create_half_adder_transitions(
@@ -77,9 +69,10 @@ def create_grade_school_turing_machine() -> TuringMachine:
 
     Method:
         1. Copy first input into arg1 tape
-        2. For each bit in the second arg on input tape,
-            go through each bit of first arg on arg1 tape, and add to
-            accumulated sum on output tape. Maintain carry bit on carry tape.
+        2. For each bit in arg1, from least to most significant bit,
+            make a forward pass across all bits of the second argument on the
+            input tape, and add all bits to an accumulated sum on the output
+            tape. Maintain carry bit on a separate tape.
     """
     builder = TuringMachineBuilder()
 
@@ -124,20 +117,38 @@ def create_grade_school_turing_machine() -> TuringMachine:
         },
     )
 
-    # Multiply current bit of 2nd arg with all bits of 1st arg, going from
-    # least-significant bit of 1st arg to most-significant. That is, when the
-    # current bit of 2nd arg is a 1, then
-    # output_tape += arg1.
+    # Multiply current bit of 1st arg with all bits of 2nd arg, going from
+    # least to most-significant bit of 2nd arg. That is, a copy of arg2 to
+    # output tape.
 
-    # when current bit of 2nd arg is 0, continue to next bit
+    # when current bit of 1st arg is 0, continue to next bit.
+    # make sure to write a 0 on the output tape.
     builder.add_transition(
         process_arg2_node,
         new_state=process_arg2_node,
-        accept_condition={input_tape: Symbol.ZERO.value},
+        accept_condition={
+            arg1_tape: Symbol.ZERO.value,
+            output_tape: Symbol.BLANK.value,
+        },
+        symbols_to_write={
+            output_tape: Symbol.ZERO,
+        },
+        tape_shifts={
+            arg1_tape: Shift.LEFT,  # continue to more significant bit of arg1
+            output_tape: Shift.LEFT,  # shift partial sum since now higher power of 2
+        },
+    )
+    builder.add_transition(
+        process_arg2_node,
+        new_state=process_arg2_node,
+        accept_condition={
+            arg1_tape: Symbol.ZERO.value,
+            output_tape: [Symbol.ONE.value, Symbol.BLANK.value],
+        },
         symbols_to_write={},
         tape_shifts={
-            input_tape: Shift.RIGHT,  # continue to next bit of arg2
-            output_tape: Shift.RIGHT,  # shift partial sum since lower power of 2
+            arg1_tape: Shift.LEFT,  # continue to more significant bit of arg1
+            output_tape: Shift.LEFT,  # shift partial sum since now higher power of 2
         },
     )
 

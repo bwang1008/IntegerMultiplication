@@ -70,6 +70,6 @@ class Transition:
 class SingleTapeTransition:
     """Simplified transition that only reads and writes from one tape."""
 
-    accept_condition: str
-    symbol_to_write: Symbol
-    shift: Shift
+    accept_condition: str | None
+    symbol_to_write: Symbol | None
+    shift: Shift | None

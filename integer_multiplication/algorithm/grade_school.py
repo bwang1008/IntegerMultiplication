@@ -7,9 +7,11 @@ from typing import TYPE_CHECKING
 from integer_multiplication.algorithm.utils import (
     TapeDirection,
     copy_word,
+    move_across_word,
 )
 from integer_multiplication.turing_machine.shift import Shift
 from integer_multiplication.turing_machine.symbol import Symbol
+from integer_multiplication.turing_machine.transition import SingleTapeTransition
 from integer_multiplication.turing_machine.turing_machine_builder import (
     TuringMachineBuilder,
 )
@@ -97,10 +99,10 @@ def create_grade_school_turing_machine() -> TuringMachine:
     # When encounter a blank, you are in between the two inputs.
     # Use this time when the input head moves to the second input
     # to write a 0 into the carry tape.
-    process_arg2_node: int = builder.get_or_create_state(name="process_arg2")
+    read_arg2_node: int = builder.get_or_create_state(name="read_arg2")
     builder.add_transition(
         start_node,
-        new_state=process_arg2_node,
+        new_state=read_arg2_node,
         accept_condition={input_tape: Symbol.BLANK.value},
         symbols_to_write={
             carry_tape: Symbol.ZERO,
@@ -111,24 +113,42 @@ def create_grade_school_turing_machine() -> TuringMachine:
         },
     )
 
-    # Multiply current bit of 1st arg with all bits of 2nd arg, going from
-    # least to most-significant bit of 2nd arg. That is, a copy of arg2 to
-    # output tape.
+    # move input tape head so that it is at the least-significant bit of 2nd arg
+    move_across_word(
+        builder,
+        read_arg2_node,
+        TapeDirection(input_tape, Shift.RIGHT),
+    )
+    # at blank at the end of the 2nd arg, move back one
+    process_arg2_node: int = builder.get_or_create_state()
+    builder.add_single_tape_transition(
+        read_arg2_node,
+        process_arg2_node,
+        input_tape,
+        single_transition=SingleTapeTransition(
+            Symbol.BLANK.value, Symbol.BLANK, Shift.LEFT
+        ),
+    )
 
-    # when current bit of 1st arg is 0, continue to next bit.
-    # make sure to write a 0 on the output tape.
+    # Now have 2 tapes with heads at least-significant bit of each argument.
+    # Multiply current bit of 2nd arg with all bits of 1st arg, going from
+    # least to most-significant bit of 1st arg. That is, add a copy of arg1 to
+    # the output tape.
+
+    # when current bit of 2nd arg is 0, continue to next bit.
     builder.add_transition(
         process_arg2_node,
         new_state=process_arg2_node,
         accept_condition={
-            arg1_tape: Symbol.ZERO.value,
+            input_tape: Symbol.ZERO.value,
+            # write a 0 to output tape if currently BLANK
             output_tape: Symbol.BLANK.value,
         },
         symbols_to_write={
             output_tape: Symbol.ZERO,
         },
         tape_shifts={
-            arg1_tape: Shift.LEFT,  # continue to more significant bit of arg1
+            arg1_tape: Shift.LEFT,  # continue to more significant bit of arg2
             output_tape: Shift.LEFT,  # shift partial sum since now higher power of 2
         },
     )
@@ -137,15 +157,15 @@ def create_grade_school_turing_machine() -> TuringMachine:
         new_state=process_arg2_node,
         accept_condition={
             arg1_tape: Symbol.ZERO.value,
-            output_tape: [Symbol.ONE.value, Symbol.BLANK.value],
+            output_tape: [Symbol.ZERO.value, Symbol.ONE.value],
         },
+        # if output tape bit not blank, no need to write
         symbols_to_write={},
         tape_shifts={
-            arg1_tape: Shift.LEFT,  # continue to more significant bit of arg1
-            output_tape: Shift.LEFT,  # shift partial sum since now higher power of 2
+            arg1_tape: Shift.LEFT,
+            output_tape: Shift.LEFT,
         },
     )
-    # ^or actually, how about setting output = 0 when iterating 2nd arg?
 
     # when current bit of 2nd arg is a 1, add a copy of arg1 to the sum in output.
     # Use the carry_tape to implement a half-adder: given 3 bits on output_tape,
@@ -163,11 +183,13 @@ def create_grade_school_turing_machine() -> TuringMachine:
         carry_tape,
     )
 
+    # (output += arg1) loop from least-significant to most-significant bit
     for accept_condition, symbols_to_write, tape_shifts in half_adder_transitions:
         builder.add_transition(
             process_arg2_node,
             new_state=process_arg2_node,
             accept_condition={
+                # only add to output tape if current arg2 bit is a 1
                 input_tape: Symbol.ONE.value,
                 **accept_condition,
             },
@@ -175,8 +197,99 @@ def create_grade_school_turing_machine() -> TuringMachine:
             tape_shifts=tape_shifts,
         )
 
-    # if arg1 tape sees a blank, then the head has already moved all the way
-    # to the left of arg 1. Here, we need to move the head of the arg1 tape
-    # back to the right, the least-significant bit, just like performing the
-    # grade-school multiplication algorithm on paper where you write the next
-    # summand on the next line starting from the least significant bit.
+    # end of (output += arg1) is when arg1 tape hits blank beyond most-significant bit.
+    # Then worry about any leftover carry. Since traversed from least to
+    # most-significant bit, then output bit should be BLANK
+    move_back_across_arg1_node: int = builder.get_or_create_state()
+    builder.add_transition(
+        process_arg2_node,
+        move_back_across_arg1_node,
+        accept_condition={
+            input_tape: Symbol.ONE.value,
+            arg1_tape: Symbol.BLANK.value,
+            carry_tape: Symbol.ZERO.value,
+        },
+        symbols_to_write={},
+        tape_shifts={
+            output_tape: Shift.RIGHT,
+            arg1_tape: Shift.RIGHT,
+        },
+    )
+    # if carry bit was set, write a 1
+    builder.add_transition(
+        process_arg2_node,
+        move_back_across_arg1_node,
+        accept_condition={
+            input_tape: Symbol.ONE.value,
+            arg1_tape: Symbol.BLANK.value,
+            carry_tape: Symbol.ONE.value,
+        },
+        symbols_to_write={
+            output_tape: Symbol.ONE,
+            carry_tape: Symbol.ZERO,
+        },
+        tape_shifts={
+            output_tape: Shift.RIGHT,
+            arg1_tape: Shift.RIGHT,
+        },
+    )
+
+    # Head of arg1 tape has already moved all the way to the left of arg 1. Now move the
+    # head of the arg1 tape back to the right, the least-significant bit, just like
+    # performing the grade-school multiplication algorithm on paper where you write
+    # the next summand on the next line starting from the least significant bit.
+    builder.add_transition(
+        move_back_across_arg1_node,
+        new_state=move_back_across_arg1_node,
+        accept_condition={arg1_tape: [Symbol.ZERO.value, Symbol.ONE.value]},
+        symbols_to_write={},
+        tape_shifts={arg1_tape: Shift.RIGHT, output_tape: Shift.RIGHT},
+    )
+    # once arg1 tape has hit blank on right of arg1, shift back one to go back
+    # to where it started from, on the least-significant bit
+    shift_arg2_head_left_node: int = builder.get_or_create_state()
+    builder.add_transition(
+        move_back_across_arg1_node,
+        new_state=shift_arg2_head_left_node,
+        accept_condition={arg1_tape: Symbol.BLANK.value},
+        symbols_to_write={},
+        tape_shifts={arg1_tape: Shift.LEFT, output_tape: Shift.LEFT},
+    )
+
+    # now move on to the next significant bit of arg2
+    builder.add_transition(
+        shift_arg2_head_left_node,
+        new_state=process_arg2_node,
+        accept_condition={},
+        symbols_to_write={
+            carry_tape: Symbol.ZERO,
+        },
+        tape_shifts={input_tape: Shift.LEFT, output_tape: Shift.LEFT},
+    )
+
+    # main loop done: check when input tape finishes going through all arg2 bits
+    move_output_tape_head_left: int = builder.get_or_create_state()
+    builder.add_transition(
+        process_arg2_node,
+        new_state=move_output_tape_head_left,
+        accept_condition={input_tape: Symbol.BLANK.value},
+        symbols_to_write={},
+        tape_shifts={},
+    )
+
+    # move head of output_tape to left-most bit
+    move_across_word(
+        builder, move_output_tape_head_left, TapeDirection(output_tape, Shift.LEFT)
+    )
+    # once reaches blank on left, move one right to non-blank bit
+    end_node: int = builder.get_or_create_state(halting=True)
+    builder.add_single_tape_transition(
+        move_output_tape_head_left,
+        end_node,
+        output_tape,
+        SingleTapeTransition(
+            accept_condition=None, symbol_to_write=None, shift=Shift.RIGHT
+        ),
+    )
+
+    return builder.create()

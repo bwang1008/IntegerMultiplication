@@ -181,9 +181,21 @@ class TuringMachineBuilder:
         self.add_transition(
             old_state,
             new_state=new_state,
-            accept_condition={tape_index: single_transition.accept_condition},
-            symbols_to_write={tape_index: single_transition.symbol_to_write},
-            tape_shifts={tape_index: single_transition.shift},
+            accept_condition=(
+                {tape_index: single_transition.accept_condition}
+                if single_transition.accept_condition is not None
+                else {}
+            ),
+            symbols_to_write=(
+                {tape_index: single_transition.symbol_to_write}
+                if single_transition.symbol_to_write is not None
+                else {}
+            ),
+            tape_shifts=(
+                {tape_index: single_transition.shift}
+                if single_transition.shift is not None
+                else {}
+            ),
         )
 
     def create(self) -> TuringMachine:

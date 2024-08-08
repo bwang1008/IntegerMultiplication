@@ -4,7 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from integer_multiplication.algorithm.utils import TapeDirection
+from integer_multiplication.algorithm.utils import (
+    TapeDirection,
+    copy_word,
+)
 from integer_multiplication.turing_machine.shift import Shift
 from integer_multiplication.turing_machine.symbol import Symbol
 from integer_multiplication.turing_machine.turing_machine_builder import (
@@ -26,7 +29,7 @@ def _create_half_adder_transitions(
         direction / shift to go from least to most significant bit.
     :param summand_tape: which tape that should be added to output.
     :param carry_tape: tape that holds the carry bit, initially assigned to 0
-    :return: the state that the transitions end on
+    :return: the transitions corresponding to half-adder logic
     """
     transitions: list[
         tuple[dict[int, str | list[str]], dict[int, Symbol], dict[int, Shift]]
@@ -84,24 +87,15 @@ def create_grade_school_turing_machine() -> TuringMachine:
     start_node: int = builder.get_or_create_state(name="start")
 
     # copy first input into arg1 tape
-    # copy 0s
-    builder.add_transition(
+    copy_word(
+        builder,
         start_node,
-        new_state=start_node,
-        accept_condition={input_tape: Symbol.ZERO.value},
-        symbols_to_write={arg1_tape: Symbol.ZERO},
-        tape_shifts={input_tape: Shift.RIGHT, arg1_tape: Shift.RIGHT},
+        TapeDirection(input_tape, Shift.RIGHT),
+        [TapeDirection(arg1_tape, Shift.RIGHT)],
     )
-    # copy 1s
-    builder.add_transition(
-        start_node,
-        new_state=start_node,
-        accept_condition={input_tape: Symbol.ONE.value},
-        symbols_to_write={arg1_tape: Symbol.ONE},
-        tape_shifts={input_tape: Shift.RIGHT, arg1_tape: Shift.RIGHT},
-    )
+
     # When encounter a blank, you are in between the two inputs.
-    # Use this time when the input head moves to the second input,
+    # Use this time when the input head moves to the second input
     # to write a 0 into the carry tape.
     process_arg2_node: int = builder.get_or_create_state(name="process_arg2")
     builder.add_transition(
@@ -151,6 +145,7 @@ def create_grade_school_turing_machine() -> TuringMachine:
             output_tape: Shift.LEFT,  # shift partial sum since now higher power of 2
         },
     )
+    # ^or actually, how about setting output = 0 when iterating 2nd arg?
 
     # when current bit of 2nd arg is a 1, add a copy of arg1 to the sum in output.
     # Use the carry_tape to implement a half-adder: given 3 bits on output_tape,

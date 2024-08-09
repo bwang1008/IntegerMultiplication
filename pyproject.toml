@@ -2,30 +2,24 @@
 name = "IntegerMultiplication"
 version = "0.0.0"
 description = "Implementation of integer multiplication algorithms on a Multi-Tape Turing Machine."
-authors = [ {name = "Brian Wang", email = "bwang1008@gmail.com"} ]
+authors = [{ name = "Brian Wang", email = "bwang1008@gmail.com" }]
 requires-python = ">= 3.8"
 dependencies = [
-	"ipython",
-	"loguru",
-	"mypy",
-	"pre-commit",
-	"pytest",
-	"pytest-cov",
-	"ruff",
-	"typer",
-	"typing-extensions",
-	"uv",
+	"ipython",           # enhanced Python shell
+	"loguru",            # logging
+	"mypy",              # static type checking
+	"pre-commit",        # pre-commit hooks
+	"pytest",            # unittesting
+	"pytest-cov",        # code coverage
+	"ruff",              # linter and formatter
+	"typer",             # build CLI
+	"typing-extensions", # extra type hints
+	"uv",                # package installer and resolver
 ]
 
 [tool.ruff]
 # See https://docs.astral.sh/ruff/configuration/
-exclude = [
-	".git",
-	".mypy_cache",
-	".pytest_cache",
-	".ruff_cache",
-	".venv",
-]
+exclude = [".git", ".mypy_cache", ".pytest_cache", ".ruff_cache", ".venv"]
 
 line-length = 88
 indent-width = 4
@@ -37,17 +31,19 @@ target-version = "py38"
 # and "ruff linter -v"
 select = ["ALL"]
 ignore = [
-	"D203", # one-blank-line-before-class incompatible with D211
-	"D213", # multi-line-summary-second-line incompatible with D212
-	"COM812",  # missing-trailing-comma incompatible with formatter
-	"ISC001",  # single-line-implicit-string-concatenation incompatible with formatter
+	"D203",   # one-blank-line-before-class incompatible with D211
+	"D213",   # multi-line-summary-second-line incompatible with D212
+	"COM812", # missing-trailing-comma incompatible with formatter
+	"ISC001", # single-line-implicit-string-concatenation incompatible with formatter
 ]
 
 fixable = ["ALL"]
 unfixable = []
 
 [tool.ruff.lint.per-file-ignores]
-"integer_multiplication/tests/test_*.py" = ["S101"] 	# let pytest use assert statements
+"integer_multiplication/tests/test_*.py" = [
+	"S101",
+] # let pytest use assert statements
 
 [tool.ruff.format]
 quote-style = "double"

@@ -10,6 +10,7 @@ dependencies = [
 	"mypy",
 	"pre-commit",
 	"pytest",
+	"pytest-cov",
 	"ruff",
 	"typer",
 	"typing-extensions",

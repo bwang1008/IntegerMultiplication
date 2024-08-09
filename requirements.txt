@@ -36,7 +36,7 @@ matplotlib-inline==0.1.7
     # via ipython
 mdurl==0.1.2
     # via markdown-it-py
-mypy==1.11.0
+mypy==1.11.1
     # via integermultiplication (pyproject.toml)
 mypy-extensions==1.0.0
     # via mypy
@@ -72,11 +72,11 @@ pytest==8.3.2
     #   pytest-cov
 pytest-cov==5.0.0
     # via integermultiplication (pyproject.toml)
-pyyaml==6.0.1
+pyyaml==6.0.2
     # via pre-commit
 rich==13.7.1
     # via typer
-ruff==0.5.4
+ruff==0.5.7
     # via integermultiplication (pyproject.toml)
 shellingham==1.5.4
     # via typer
@@ -102,7 +102,7 @@ typing-extensions==4.12.2
     #   mypy
     #   rich
     #   typer
-uv==0.2.29
+uv==0.2.34
     # via integermultiplication (pyproject.toml)
 virtualenv==20.26.3
     # via pre-commit

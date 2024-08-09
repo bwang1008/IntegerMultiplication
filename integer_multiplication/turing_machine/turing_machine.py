@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from loguru import logger
+
 from integer_multiplication.turing_machine.shift import Shift
 from integer_multiplication.turing_machine.tape import Tape
 
@@ -69,7 +71,9 @@ class TuringMachine:
         """
         return "".join(tape.read().value for tape in self.tapes)
 
-    def set_input_tape_values(self, symbols: list[Symbol]) -> None:
+    def set_input_tape_values(
+        self, symbols: list[Symbol], *, reset_tape_head: bool = True
+    ) -> None:
         """Set the initial tape contents of the 'input' tape.
 
         The 'input' tape will be the first tape, i.e. self.tapes[0].
@@ -80,6 +84,8 @@ class TuringMachine:
         This should not be called after the machine has started running.
 
         :param symbols: list of Symbols to be written on the first tape
+        :param reset_tape_head: reset head to initial 0th cell, instead of the
+            end of the specified cell
         """
         if self.num_steps > 0:
             error_msg: str = (
@@ -90,6 +96,9 @@ class TuringMachine:
         for symbol in symbols:
             self.tapes[0].write(symbol)
             self.tapes[0].shift(Shift.RIGHT)
+
+        if reset_tape_head:
+            self.tapes[0].head = 0
 
     def step(self) -> None:
         """Perform a single step of the Turing Machine.
@@ -107,12 +116,19 @@ class TuringMachine:
         possible_transitions: list[Transition] = self.transitions[self.current_state]
         for transition in possible_transitions:
             if transition.matches(self.read_tape_contents()):
+                logger.info(f"My tapes read {self.read_tape_contents()}")
+                logger.info(
+                    f"Going from state {self.current_state} -> {transition.new_state}"
+                )
+
                 self.current_state = transition.new_state
 
                 for tape_index, symbol in transition.symbols_to_write.items():
                     self.tapes[tape_index].write(symbol)
+                    logger.debug(f"Writing {symbol.value} to tape {tape_index}")
                 for tape_index, shift in transition.tape_shifts.items():
                     self.tapes[tape_index].shift(shift)
+                    logger.debug(f"Shifting tape {tape_index} {shift.value}")
 
                 self.num_steps += 1
                 return

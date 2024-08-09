@@ -56,8 +56,8 @@ def _create_half_adder_transitions(
                     carry_tape: carry_value,
                 }
                 symbols_to_write = {
-                    output_tape.tape_index: Symbol[str(write_bit)],
-                    carry_tape: Symbol[str(carry_bit)],
+                    output_tape.tape_index: Symbol(str(write_bit)),
+                    carry_tape: Symbol(str(carry_bit)),
                 }
                 tape_shifts = {
                     output_tape.tape_index: output_tape.shift,
@@ -87,6 +87,7 @@ def create_grade_school_turing_machine() -> TuringMachine:
     carry_tape: int = builder.get_or_create_tape_index(name="carry")
 
     start_node: int = builder.get_or_create_state(name="start")
+    builder.set_starting_state(start_node)
 
     # copy first input into arg1 tape
     copy_word(
@@ -126,7 +127,7 @@ def create_grade_school_turing_machine() -> TuringMachine:
         process_arg2_node,
         input_tape,
         single_transition=SingleTapeTransition(
-            Symbol.BLANK.value, Symbol.BLANK, Shift.LEFT
+            accept_condition=None, symbol_to_write=None, shift=Shift.LEFT
         ),
     )
 
@@ -148,7 +149,7 @@ def create_grade_school_turing_machine() -> TuringMachine:
             output_tape: Symbol.ZERO,
         },
         tape_shifts={
-            arg1_tape: Shift.LEFT,  # continue to more significant bit of arg2
+            input_tape: Shift.LEFT,  # continue to more significant bit of arg2
             output_tape: Shift.LEFT,  # shift partial sum since now higher power of 2
         },
     )
@@ -162,7 +163,7 @@ def create_grade_school_turing_machine() -> TuringMachine:
         # if output tape bit not blank, no need to write
         symbols_to_write={},
         tape_shifts={
-            arg1_tape: Shift.LEFT,
+            input_tape: Shift.LEFT,
             output_tape: Shift.LEFT,
         },
     )

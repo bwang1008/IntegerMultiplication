@@ -216,5 +216,5 @@ class TuringMachineBuilder:
             num_tapes=self.num_tapes,
             starting_state=self.starting_state,
             halting_states=self.halting_states,
-            transitions=[self.transitions[i] for i in range(self.num_tapes)],
+            transitions=[self.transitions[i] for i in range(self.num_states)],
         )

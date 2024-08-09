@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from loguru import logger
-
 from integer_multiplication.turing_machine.shift import Shift
 from integer_multiplication.turing_machine.tape import Tape
 
@@ -116,19 +114,12 @@ class TuringMachine:
         possible_transitions: list[Transition] = self.transitions[self.current_state]
         for transition in possible_transitions:
             if transition.matches(self.read_tape_contents()):
-                logger.info(f"My tapes read {self.read_tape_contents()}")
-                logger.info(
-                    f"Going from state {self.current_state} -> {transition.new_state}"
-                )
-
                 self.current_state = transition.new_state
 
                 for tape_index, symbol in transition.symbols_to_write.items():
                     self.tapes[tape_index].write(symbol)
-                    logger.debug(f"Writing {symbol.value} to tape {tape_index}")
                 for tape_index, shift in transition.tape_shifts.items():
                     self.tapes[tape_index].shift(shift)
-                    logger.debug(f"Shifting tape {tape_index} {shift.value}")
 
                 self.num_steps += 1
                 return

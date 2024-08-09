@@ -157,7 +157,7 @@ def create_grade_school_turing_machine() -> TuringMachine:
         process_arg2_node,
         new_state=process_arg2_node,
         accept_condition={
-            arg1_tape: Symbol.ZERO.value,
+            input_tape: Symbol.ZERO.value,
             output_tape: [Symbol.ZERO.value, Symbol.ONE.value],
         },
         # if output tape bit not blank, no need to write

@@ -9,6 +9,7 @@ dependencies = [
 	"loguru",
 	"mypy",
 	"pre-commit",
+	"pytest",
 	"ruff",
 	"typer",
 	"typing-extensions",

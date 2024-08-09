@@ -4,6 +4,9 @@
 # Python byte-compiled
 __pycache__/
 
+# pytest-cov coverage file
+.coverage
+
 # Vim swap file
 *.swp
 .vscode

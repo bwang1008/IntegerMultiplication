@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from integer_multiplication.algorithm.grade_school import (
+from integer_multiplication.algorithm.grade_school.v1 import (
     create_grade_school_turing_machine,
 )
 from integer_multiplication.turing_machine.shift import Shift

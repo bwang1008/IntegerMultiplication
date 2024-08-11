@@ -42,29 +42,6 @@ class TuringMachineBuilder:
         self.num_states += 1
         return new_state_index
 
-    def get_or_create_state(
-        self, *, name: str | None = None, halting: bool = False
-    ) -> int:
-        """Fetch an existing state or create a new state.
-
-        If a name is provided and was used before, that node is returned.
-        Otherwise, a new state is created with that name.
-
-        :param name: name of the state. If this name was used before, then
-            the state associated with the name is returned. Otherwise, a new
-            node is created with the name associated with it.
-        :param halting: if the new state should be a halting state or not.
-            Has no effect if fetching an existing state.
-        :return: int representing existing / new state
-        """
-        if name is not None:
-            if name in self.named_states:
-                return self.named_states[name]
-            self.named_states[name] = self.num_states
-            return self.create_state(halting=halting)
-
-        return self.create_state(halting=halting)
-
     def get_or_create_tape_index(self, *, name: str) -> int:
         """Fetch an existing tape index or create a new tape.
 
@@ -89,18 +66,6 @@ class TuringMachineBuilder:
         :param starting_state: which state to be used as the starting state.
         """
         self.starting_state = starting_state
-
-    def add_transition_direct(self, old_state: int, transition: Transition) -> None:
-        """Add a Transition instance associated with old_state.
-
-        :param old_state: which state the Turing machine is in to consider
-            this transition
-        :param transition: Transition instance detailing which new state to
-            move to, which tape indices need to be read to check acceptance,
-            which new symbols to write on the tapes, and which way to shift
-            the tape heads
-        """
-        self.transitions[old_state].append(transition)
 
     def add_transition(
         self,

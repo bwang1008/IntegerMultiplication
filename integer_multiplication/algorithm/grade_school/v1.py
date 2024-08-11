@@ -86,7 +86,7 @@ def create_grade_school_turing_machine() -> TuringMachine:
     arg1_tape: int = builder.get_or_create_tape_index(name="arg1")
     carry_tape: int = builder.get_or_create_tape_index(name="carry")
 
-    start_node: int = builder.get_or_create_state(name="start")
+    start_node: int = builder.create_state()
     builder.set_starting_state(start_node)
 
     # copy first input into arg1 tape
@@ -100,7 +100,7 @@ def create_grade_school_turing_machine() -> TuringMachine:
     # When encounter a blank, you are in between the two inputs.
     # Use this time when the input head moves to the second input
     # to write a 0 into the carry tape.
-    read_arg2_node: int = builder.get_or_create_state(name="read_arg2")
+    read_arg2_node: int = builder.create_state()
     builder.add_transition(
         start_node,
         new_state=read_arg2_node,
@@ -121,7 +121,7 @@ def create_grade_school_turing_machine() -> TuringMachine:
         TapeDirection(input_tape, Shift.RIGHT),
     )
     # at blank at the end of the 2nd arg, move back one
-    process_arg2_node: int = builder.get_or_create_state()
+    process_arg2_node: int = builder.create_state()
     builder.add_single_tape_transition(
         read_arg2_node,
         process_arg2_node,
@@ -201,7 +201,7 @@ def create_grade_school_turing_machine() -> TuringMachine:
     # end of (output += arg1) is when arg1 tape hits blank beyond most-significant bit.
     # Then worry about any leftover carry. Since traversed from least to
     # most-significant bit, then output bit should be BLANK
-    move_back_across_arg1_node: int = builder.get_or_create_state()
+    move_back_across_arg1_node: int = builder.create_state()
     builder.add_transition(
         process_arg2_node,
         move_back_across_arg1_node,
@@ -248,7 +248,7 @@ def create_grade_school_turing_machine() -> TuringMachine:
     )
     # once arg1 tape has hit blank on right of arg1, shift back one to go back
     # to where it started from, on the least-significant bit
-    shift_arg2_head_left_node: int = builder.get_or_create_state()
+    shift_arg2_head_left_node: int = builder.create_state()
     builder.add_transition(
         move_back_across_arg1_node,
         new_state=shift_arg2_head_left_node,
@@ -269,7 +269,7 @@ def create_grade_school_turing_machine() -> TuringMachine:
     )
 
     # main loop done: check when input tape finishes going through all arg2 bits
-    move_output_tape_head_left: int = builder.get_or_create_state()
+    move_output_tape_head_left: int = builder.create_state()
     builder.add_transition(
         process_arg2_node,
         new_state=move_output_tape_head_left,
@@ -283,7 +283,7 @@ def create_grade_school_turing_machine() -> TuringMachine:
         builder, move_output_tape_head_left, TapeDirection(output_tape, Shift.LEFT)
     )
     # once reaches blank on left, move one right to non-blank bit
-    end_node: int = builder.get_or_create_state(halting=True)
+    end_node: int = builder.create_state(halting=True)
     builder.add_single_tape_transition(
         move_output_tape_head_left,
         end_node,

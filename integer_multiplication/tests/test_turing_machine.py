@@ -49,7 +49,9 @@ def test_set_input_tape_values_fails_after_run(simple_tm: TuringMachine) -> None
     """Check that setting input after a run begins errors."""
     simple_tm.num_steps = 1
 
-    with pytest.raises(RuntimeError):
+    with pytest.raises(
+        RuntimeError, match="Cannot set input tape values after it has started running."
+    ):
         simple_tm.set_input_tape_values(
             [Symbol.ONE, Symbol.ZERO, Symbol.BLANK, Symbol.ONE], reset_tape_head=True
         )

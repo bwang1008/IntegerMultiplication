@@ -20,7 +20,7 @@ def simple_tm() -> TuringMachine:
             [
                 Transition(
                     new_state=1,
-                    accept_condition={},
+                    accept_condition={0: Symbol.ONE.value},
                     symbols_to_write={0: Symbol.ONE},
                     tape_shifts={0: Shift.RIGHT},
                 )
@@ -71,5 +71,20 @@ def test_step(simple_tm: TuringMachine) -> None:
 
     assert simple_tm.current_state == 1
     assert simple_tm.tapes[0].head == 1
+    assert simple_tm.tapes[0].read() == Symbol.ZERO
+    assert simple_tm.num_steps == 1
+
+
+def test_step_moves_to_halting_state(simple_tm: TuringMachine) -> None:
+    """Check that no transition matches moves to a halting state."""
+    simple_tm.set_input_tape_values([Symbol.ZERO], reset_tape_head=True)
+
+    assert not simple_tm.transitions[0][0].matches(simple_tm.read_tape_contents())
+
+    simple_tm.step()
+
+    assert simple_tm.is_halted()
+    assert simple_tm.current_state == 1
+    assert simple_tm.tapes[0].head == 0
     assert simple_tm.tapes[0].read() == Symbol.ZERO
     assert simple_tm.num_steps == 1

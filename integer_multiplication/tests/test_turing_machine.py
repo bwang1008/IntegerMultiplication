@@ -53,3 +53,23 @@ def test_set_input_tape_values_fails_after_run(simple_tm: TuringMachine) -> None
         simple_tm.set_input_tape_values(
             [Symbol.ONE, Symbol.ZERO, Symbol.BLANK, Symbol.ONE], reset_tape_head=True
         )
+
+
+def test_step(simple_tm: TuringMachine) -> None:
+    """Check that a step updates the current state and shifts the tape head."""
+    simple_tm.set_input_tape_values(
+        [Symbol.ONE, Symbol.ZERO, Symbol.BLANK, Symbol.ONE], reset_tape_head=True
+    )
+
+    assert simple_tm.current_state == 0
+    assert len(simple_tm.tapes) == 1
+    assert simple_tm.tapes[0].head == 0
+    assert simple_tm.tapes[0].read() == Symbol.ONE
+    assert simple_tm.num_steps == 0
+
+    simple_tm.step()
+
+    assert simple_tm.current_state == 1
+    assert simple_tm.tapes[0].head == 1
+    assert simple_tm.tapes[0].read() == Symbol.ZERO
+    assert simple_tm.num_steps == 1

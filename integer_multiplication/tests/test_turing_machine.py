@@ -88,3 +88,34 @@ def test_step_moves_to_halting_state(simple_tm: TuringMachine) -> None:
     assert simple_tm.tapes[0].head == 0
     assert simple_tm.tapes[0].read() == Symbol.ZERO
     assert simple_tm.num_steps == 1
+
+
+def test_reset(simple_tm: TuringMachine) -> None:
+    """Check reset method sets num_steps to 0 and clears input tape."""
+    simple_tm.set_input_tape_values(
+        [Symbol.ONE, Symbol.ZERO, Symbol.BLANK, Symbol.ONE], reset_tape_head=True
+    )
+
+    assert simple_tm.num_steps == 0
+    assert not simple_tm.is_halted()
+    assert simple_tm.current_state == 0
+    assert len(simple_tm.tapes) == 1
+    assert simple_tm.tapes[0].head == 0
+    assert simple_tm.tapes[0].read() == Symbol.ONE
+
+    simple_tm.step()
+
+    assert simple_tm.num_steps == 1
+    assert simple_tm.is_halted()
+    assert simple_tm.current_state == 1
+    assert simple_tm.tapes[0].head == 1
+    assert simple_tm.tapes[0].read() == Symbol.ZERO
+
+    simple_tm.reset()
+
+    assert simple_tm.num_steps == 0
+    assert not simple_tm.is_halted()
+    assert simple_tm.current_state == 0
+    assert len(simple_tm.tapes[0].cells) == 0
+    assert simple_tm.tapes[0].head == 0
+    assert simple_tm.tapes[0].read() == Symbol.BLANK

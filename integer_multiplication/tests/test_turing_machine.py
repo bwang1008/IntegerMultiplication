@@ -1,4 +1,4 @@
-"""Tests behavior of Turing machine class."""
+"""Tests behavior of TuringMachine class."""
 
 import pytest
 

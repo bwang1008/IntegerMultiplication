@@ -20,7 +20,7 @@ def simple_tm() -> TuringMachine:
             [
                 Transition(
                     new_state=1,
-                    accept_condition={0: Symbol.ONE.value},
+                    accept_condition={0: Symbol.ONE},
                     symbols_to_write={0: Symbol.ONE},
                     tape_shifts={0: Shift.RIGHT},
                 )

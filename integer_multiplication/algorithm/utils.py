@@ -39,7 +39,7 @@ def move_across_word(
     builder.add_transition(
         start_node,
         new_state=start_node,
-        accept_condition={tape.tape_index: [Symbol.ZERO.value, Symbol.ONE.value]},
+        accept_condition={tape.tape_index: [Symbol.ZERO, Symbol.ONE]},
         symbols_to_write={},
         tape_shifts={tape.tape_index: tape.shift},
     )
@@ -64,7 +64,7 @@ def copy_word(
         builder.add_transition(
             start_node,
             new_state=start_node,
-            accept_condition={input_tape.tape_index: symbol.value},
+            accept_condition={input_tape.tape_index: symbol},
             symbols_to_write={
                 output_tape.tape_index: symbol for output_tape in output_tapes
             },

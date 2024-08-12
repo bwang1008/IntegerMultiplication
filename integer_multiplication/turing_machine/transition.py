@@ -22,7 +22,7 @@ class Transition:
         self,
         *,
         new_state: int,
-        accept_condition: dict[int, str],
+        accept_condition: dict[int, Symbol],
         symbols_to_write: dict[int, Symbol],
         tape_shifts: dict[int, Shift],
     ) -> None:
@@ -47,7 +47,7 @@ class Transition:
             should shift left, right, or not shift after writing a symbol.
         """
         self.new_state: int = new_state
-        self.accept_condition: dict[int, str] = accept_condition
+        self.accept_condition: dict[int, Symbol] = accept_condition
         self.symbols_to_write: dict[int, Symbol] = symbols_to_write
         self.tape_shifts: dict[int, Shift] = tape_shifts
 
@@ -60,7 +60,7 @@ class Transition:
             on the accept_condition's specified tape indices
         """
         for index, desired_character in self.accept_condition.items():
-            if tape_input[index] != desired_character:
+            if tape_input[index] != desired_character.value:
                 return False
 
         return True
@@ -70,6 +70,6 @@ class Transition:
 class SingleTapeTransition:
     """Simplified transition that only reads and writes from one tape."""
 
-    accept_condition: str | None
+    accept_condition: Symbol | None
     symbol_to_write: Symbol | None
     shift: Shift | None

@@ -6,6 +6,7 @@ import itertools
 from collections import defaultdict
 from typing import TYPE_CHECKING
 
+from integer_multiplication.turing_machine.symbol import Symbol
 from integer_multiplication.turing_machine.transition import (
     SingleTapeTransition,
     Transition,
@@ -14,7 +15,6 @@ from integer_multiplication.turing_machine.turing_machine import TuringMachine
 
 if TYPE_CHECKING:
     from integer_multiplication.turing_machine.shift import Shift
-    from integer_multiplication.turing_machine.symbol import Symbol
 
 
 class TuringMachineBuilder:
@@ -71,7 +71,7 @@ class TuringMachineBuilder:
         self,
         old_state: int,
         new_state: int,
-        accept_condition: dict[int, str | list[str]],
+        accept_condition: dict[int, Symbol | list[Symbol]],
         symbols_to_write: dict[int, Symbol],
         tape_shifts: dict[int, Shift],
     ) -> None:
@@ -82,7 +82,7 @@ class TuringMachineBuilder:
         :param new_state: which state to move to if accept_condition matches
             the tape input
         :param accept_condition: mapping from tape index to expected symbol
-            if a string was provided, or to a list of symbols. If a list of
+            or to a list of symbols. If a list of
             symbols is provided, then a transition is added for every possible
             value. Note that this means a Cartesian product of every list in
             accept_condition is used to create all transitions. For example,
@@ -98,16 +98,16 @@ class TuringMachineBuilder:
         :param tape_shifts: mapping from tape index to which way the heads of the
             tapes should move.
         """
-        accept_condition_lists: list[list[str]] = []
+        accept_condition_lists: list[list[Symbol]] = []
         for val in accept_condition.values():
-            if isinstance(val, str):
+            if isinstance(val, Symbol):
                 accept_condition_lists.append([val])
             elif isinstance(val, list):
                 accept_condition_lists.append(val)
 
         tape_indices: list[int] = list(accept_condition)
         for cartesian_product in itertools.product(*accept_condition_lists):
-            accept_condition_instance: dict[int, str] = dict(
+            accept_condition_instance: dict[int, Symbol] = dict(
                 zip(tape_indices, cartesian_product)
             )
             self.transitions[old_state].append(

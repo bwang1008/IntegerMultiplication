@@ -4,6 +4,11 @@
 # Python byte-compiled
 __pycache__/
 
+# tool caches
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
 # pytest-cov coverage file
 .coverage
 

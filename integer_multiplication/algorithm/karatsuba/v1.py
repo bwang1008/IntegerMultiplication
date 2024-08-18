@@ -54,18 +54,24 @@ def create_karatsuba_turing_machine() -> TuringMachine:
     """
     builder: TuringMachineBuilder = TuringMachineBuilder()
 
+    start_node: int = builder.create_state()
+    builder.set_starting_state(start_node)
+
+    main_loop_node: int = builder.create_state()
+
+    _initialize(builder, start_node, main_loop_node)
+
+    return builder.create()
+
+
+def _initialize(builder: TuringMachineBuilder, start_node: int, end_node: int) -> None:
+    """Implement steps 1 and 2, to prepare for main loop."""
     input_tape: int = builder.get_or_create_tape_index(name="input")
-    output_tape: int = builder.get_or_create_tape_index(name="output")
     arg1_tape: int = builder.get_or_create_tape_index(name="arg1")
     arg2_tape: int = builder.get_or_create_tape_index(name="arg2")
     recursion_counter_tape: int = builder.get_or_create_tape_index(
         name="recursion_counter"
     )
-
-    start_node: int = builder.create_state()
-    builder.set_starting_state(start_node)
-    recursion_start_node: int = builder.create_state()
-    end_node: int = builder.create_state(halting=True)
 
     # step 1
     copy_word(
@@ -83,6 +89,7 @@ def create_karatsuba_turing_machine() -> TuringMachine:
         symbols_to_write={},
         tape_shifts={input_tape: Shift.RIGHT, arg1_tape: Shift.LEFT},
     )
+
     copy_word(
         builder,
         read_arg2_node,
@@ -102,9 +109,7 @@ def create_karatsuba_turing_machine() -> TuringMachine:
     # step 2
     builder.add_single_tape_transition(
         prior_node,
-        recursion_start_node,
+        end_node,
         recursion_counter_tape,
         SingleTapeTransition(None, Symbol.ONE, None),
     )
-
-    return builder.create()

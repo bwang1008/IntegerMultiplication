@@ -8,7 +8,7 @@ from integer_multiplication.turing_machine.transition import Transition
 from integer_multiplication.turing_machine.turing_machine import TuringMachine
 
 
-@pytest.fixture()
+@pytest.fixture
 def simple_tm() -> TuringMachine:
     """Pytest fixture for common Turing machine to test on."""
     return TuringMachine(

@@ -36,7 +36,7 @@ matplotlib-inline==0.1.7
     # via ipython
 mdurl==0.1.2
     # via markdown-it-py
-mypy==1.11.1
+mypy==1.11.2
     # via integermultiplication (pyproject.toml)
 mypy-extensions==1.0.0
     # via mypy
@@ -46,6 +46,8 @@ packaging==24.1
     # via pytest
 parso==0.8.4
     # via jedi
+pathlib2==2.3.7.post1
+    # via pickleshare
 pexpect==4.9.0
     # via ipython
 pickleshare==0.7.5
@@ -74,14 +76,16 @@ pytest-cov==5.0.0
     # via integermultiplication (pyproject.toml)
 pyyaml==6.0.2
     # via pre-commit
-rich==13.7.1
+rich==13.8.0
     # via typer
-ruff==0.6.1
+ruff==0.6.2
     # via integermultiplication (pyproject.toml)
 shellingham==1.5.4
     # via typer
 six==1.16.0
-    # via asttokens
+    # via
+    #   asttokens
+    #   pathlib2
 stack-data==0.6.3
     # via ipython
 tomli==2.0.1
@@ -93,7 +97,7 @@ traitlets==5.14.3
     # via
     #   ipython
     #   matplotlib-inline
-typer==0.12.4
+typer==0.12.5
     # via integermultiplication (pyproject.toml)
 typing-extensions==4.12.2
     # via
@@ -102,7 +106,7 @@ typing-extensions==4.12.2
     #   mypy
     #   rich
     #   typer
-uv==0.2.37
+uv==0.4.0
     # via integermultiplication (pyproject.toml)
 virtualenv==20.26.3
     # via pre-commit

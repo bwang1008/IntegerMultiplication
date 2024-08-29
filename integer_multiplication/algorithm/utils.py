@@ -5,10 +5,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+from integer_multiplication.turing_machine.shift import Shift
 from integer_multiplication.turing_machine.symbol import Symbol
+from integer_multiplication.turing_machine.turing_machine_builder import (
+    SingleTapeTransition,
+)
 
 if TYPE_CHECKING:
-    from integer_multiplication.turing_machine.shift import Shift
     from integer_multiplication.turing_machine.turing_machine_builder import (
         TuringMachineBuilder,
     )
@@ -76,3 +79,26 @@ def copy_word(
                 },
             },
         )
+
+
+def erase_word(
+    builder: TuringMachineBuilder,
+    start_node: int,
+    end_node: int,
+    tape_index: int,
+) -> None:
+    """Erase a word from a tape."""
+    builder.add_transition(
+        start_node,
+        start_node,
+        accept_condition={tape_index: [Symbol.ZERO, Symbol.ONE]},
+        symbols_to_write={tape_index: Symbol.BLANK},
+        tape_shifts={tape_index: Shift.LEFT},
+    )
+
+    builder.add_single_tape_transition(
+        start_node,
+        end_node,
+        tape_index,
+        SingleTapeTransition(Symbol.BLANK, Symbol.BLANK, Shift.LEFT),
+    )

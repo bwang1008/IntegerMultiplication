@@ -24,7 +24,7 @@ def create_karatsuba_turing_machine() -> TuringMachine:
         2. Write a 1 in recursion_counter tape.
         3. If recursion_counter tape is a 1:
             1. Let x be arg1 value, and y be arg2 value. If x or y are length 1,
-                copy answer (y or x) into results tape. Write a blank on the
+                copy answer (0, y, or x) into results tape. Write a blank on the
                 recursion_counter tape and move left. Move back to step 3.
             2. Otherwise x, y are both length > 1. Split x into 2 roughly equal
                 parts: x1, x0.
@@ -58,8 +58,21 @@ def create_karatsuba_turing_machine() -> TuringMachine:
     builder.set_starting_state(start_node)
 
     main_loop_node: int = builder.create_state()
-
     _initialize(builder, start_node, main_loop_node)
+
+    # step 3
+    start_split_node: int = builder.create_state()
+    recursion_counter_tape: int = builder.get_or_create_tape_index(
+        name="recursion_counter"
+    )
+
+    builder.add_single_tape_transition(
+        main_loop_node,
+        start_split_node,
+        recursion_counter_tape,
+        SingleTapeTransition(Symbol.ONE, None, None),
+    )
+    _main_loop(builder, start_split_node, main_loop_node)
 
     return builder.create()
 
@@ -113,3 +126,8 @@ def _initialize(builder: TuringMachineBuilder, start_node: int, end_node: int) -
         recursion_counter_tape,
         SingleTapeTransition(None, Symbol.ONE, None),
     )
+
+
+def _main_loop(builder: TuringMachineBuilder, start_node: int, end_node: int) -> None:
+    """Check both args on arg1, arg2, and split if needed."""
+    #  arguments_len1

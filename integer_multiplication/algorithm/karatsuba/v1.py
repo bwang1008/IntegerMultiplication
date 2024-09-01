@@ -223,12 +223,5 @@ def _handle_len_1(
 
     # pop both args
     erase_node_2: int = builder.create_state()
-    erase_node_3: int = builder.create_state()
     erase_word(builder, erase_node, erase_node_2, len_1_tape)
-    builder.add_single_tape_transition(
-        erase_node_2,
-        erase_node_3,
-        len_1_tape,
-        SingleTapeTransition(None, None, None),
-    )
-    erase_word(builder, erase_node_3, end_node, arg_tape)
+    erase_word(builder, erase_node_2, end_node, arg_tape)

@@ -59,11 +59,10 @@ def create_karatsuba_turing_machine() -> TuringMachine:
             1. Copy word on results tape into output and halt.
     """
     builder: TuringMachineBuilder = TuringMachineBuilder()
-
     start_node: int = builder.create_state()
+    main_loop_node: int = builder.create_state()
     builder.set_starting_state(start_node)
 
-    main_loop_node: int = builder.create_state()
     _initialize(builder, start_node, main_loop_node)
 
     # step 3
@@ -223,5 +222,14 @@ def _handle_len_1(
 
     # pop both args
     erase_node_2: int = builder.create_state()
+    finished_recursion_node: int = builder.create_state()
+
     erase_word(builder, erase_node, erase_node_2, len_1_tape)
-    erase_word(builder, erase_node_2, end_node, arg_tape)
+    erase_word(builder, erase_node_2, finished_recursion_node, arg_tape)
+
+    builder.add_single_tape_transition(
+        finished_recursion_node,
+        end_node,
+        builder.get_or_create_tape_index(name="recusion_counter"),
+        SingleTapeTransition(None, Symbol.BLANK, Shift.LEFT),
+    )

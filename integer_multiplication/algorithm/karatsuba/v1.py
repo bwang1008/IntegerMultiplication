@@ -133,12 +133,45 @@ def _initialize(builder: TuringMachineBuilder, start_node: int, end_node: int) -
     )
 
 
-def _main_loop(builder: TuringMachineBuilder, start_node: int, end_node: int) -> None:
+def _main_loop(builder: TuringMachineBuilder, start_node: int, end_node: int) -> None:  # noqa: ARG001
     """Check both args on arg1, arg2, and split if needed.
 
-    arg1, arg2 tape heads should be at least-significant bits (right-hand-side).
+    Assume arg1, arg2 tape heads are on least-significant bits (right-hand-side).
     """
-    #  arguments_len1
+    # Step 3.1: Check if either arg1 / arg2 are of length 1 by moving right and branch
+    arg1_tape: int = builder.get_or_create_tape_index(name="arg1")
+    arg2_tape: int = builder.get_or_create_tape_index(name="arg2")
+    check_len1_node: int = builder.create_state()
+    handle_len1_node1: int = builder.create_state()
+    handle_len1_node2: int = builder.create_state()
+
+    builder.add_transition(
+        start_node,
+        check_len1_node,
+        accept_condition={},
+        symbols_to_write={},
+        tape_shifts={arg1_tape: Shift.RIGHT, arg2_tape: Shift.RIGHT},
+    )
+    builder.add_transition(
+        check_len1_node,
+        handle_len1_node1,
+        accept_condition={arg1_tape: Symbol.BLANK},
+        write_condition={},
+        tape_shifts={arg1_tape: Shift.LEFT, arg2_tape: Shift.LEFT},
+    )
+    builder.add_transition(
+        check_len1_node,
+        handle_len1_node2,
+        accept_condition={
+            arg1_tape: [Symbol.ZERO, Symbol.ONE],
+            arg2_tape: Symbol.BLANK,
+        },
+        write_condition={},
+        tape_shifts={arg1_tape: Shift.LEFT, arg2_tape: Shift.LEFT},
+    )
+
+    _handle_len_1(builder, handle_len1_node1, start_node, arg1_tape, arg2_tape)
+    _handle_len_1(builder, handle_len1_node2, start_node, arg2_tape, arg1_tape)
 
 
 def _handle_len_1(
